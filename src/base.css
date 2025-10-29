@@ -1,0 +1,343 @@
+/*!
+ * Base v2.0.0
+ * A modern, HTML5 ready CSS base, foundation
+ * http://www.himpfen.com/base-css/
+ * Copyright Brandon Himpfen
+ * Licensed under MIT (http://brandonhimpfen.mit-license.org)
+ */
+
+:root {
+  --primary-color: #12c2e9;
+  --secondary-color: #317023;
+  --base-font-family: Verdana, Arial, Helvetica, sans-serif;
+  --base-font-color: #222;
+  --selection-bg-color: #12c2e9;
+  --selection-text-color: #fff;
+  --invalid-bg-color: #f0dddd;
+}
+
+html {
+  font-size: 100%;
+  overflow-y: scroll;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  font-family: var(--base-font-family);
+  color: var(--base-font-color);
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--base-font-family);
+  color: var(--base-font-color);
+}
+
+::selection {
+  background: var(--selection-bg-color);
+  color: var(--selection-text-color);
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:visited {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+a:focus {
+  outline: thin dotted;
+}
+
+a:hover,
+a:active {
+  outline: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--base-font-family);
+  margin: 0.5em 0;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+p {
+  margin: 0.5em 0;
+}
+
+abbr[title] {
+  border-bottom: 1px dotted;
+  cursor: help;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+blockquote {
+  margin: 1em 40px;
+  padding-left: 1em;
+  border-left: 4px solid var(--primary-color);
+}
+
+dfn {
+  font-style: italic;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+}
+
+mark {
+  background: #ff0;
+  color: #000;
+  font-weight: bold;
+}
+
+pre,
+code,
+kbd,
+samp {
+  font-family: monospace;
+  font-size: 1em;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+small {
+  font-size: 0.85em;
+}
+
+sub,
+sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.5em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+ul,
+ol {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+
+nav ul,
+nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  border: none;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+figure {
+  margin: 0;
+}
+
+form {
+  margin: 0;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+label {
+  cursor: pointer;
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: 100%;
+  margin: 0;
+  vertical-align: middle;
+}
+
+button,
+input[type='button'],
+input[type='reset'],
+input[type='submit'] {
+  cursor: pointer;
+  appearance: button;
+  border: none;
+  padding: 0.5em 1em;
+  background: var(--primary-color);
+  color: #fff;
+  transition: background 0.3s;
+}
+
+button:hover,
+input[type='button']:hover,
+input[type='reset']:hover,
+input[type='submit']:hover {
+  background: var(--secondary-color);
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  box-sizing: border-box;
+  margin-right: 0.5em;
+}
+
+textarea {
+  overflow: auto;
+  vertical-align: top;
+  resize: vertical;
+}
+
+input:invalid,
+textarea:invalid {
+  background-color: var(--invalid-bg-color);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+}
+
+th {
+  text-align: left;
+  background: #f7f7f7;
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section {
+  display: block;
+}
+
+audio,
+canvas,
+video {
+  display: inline-block;
+}
+
+audio:not([controls]) {
+  display: none;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    text-shadow: none !important;
+    filter: none !important;
+  }
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+  a[href]:after {
+    content: ' (' attr(href) ')';
+  }
+  abbr[title]:after {
+    content: ' (' attr(title) ')';
+  }
+  pre,
+  blockquote {
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+  img {
+    max-width: 100% !important;
+  }
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}
