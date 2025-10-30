@@ -2,7 +2,7 @@
  * @Author: 白羽 1665169869@qq.com
  * @Date: 2025-10-30 08:34:53
  * @LastEditors: 白羽 1665169869@qq.com
- * @LastEditTime: 2025-10-30 14:22:53
+ * @LastEditTime: 2025-10-30 21:16:56
  * @FilePath: \vite-steganography-vue\src\components\FileSelector.vue
  * @Description:
  * Copyright (c) 2025 by 白羽 1665169869@qq.com, All Rights Reserved.
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { isZip, verifyZipPassword } from '@/utils/zip'
+import { isProbablyZip, isZipPasswordProtected, verifyZipPassword } from '@/utils/zip'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox, type UploadFile } from 'element-plus'
 import { ref } from 'vue'
@@ -54,7 +54,19 @@ const addFile = async (file: UploadFile) => {
   progressValue.value = 0
   uploadDisabled.value = true
 
-  if (!(await isZip(file.raw as File))) {
+  // if (!(await isZip(file.raw as File))) {
+  //   emit('error', '文件格式不正确')
+  //   ElMessage.error('文件格式不正确')
+  //   progressShow.value = false
+  //   uploadDisabled.value = false
+  //   return
+  // }
+
+  const zipFile: File = file.raw as File
+
+  const isZip = await isProbablyZip(zipFile)
+
+  if (!isZip) {
     emit('error', '文件格式不正确')
     ElMessage.error('文件格式不正确')
     progressShow.value = false
@@ -62,26 +74,35 @@ const addFile = async (file: UploadFile) => {
     return
   }
 
-  if (!((await verifyZipPassword(file.raw as File)).success)) {
-    ElMessageBox.prompt('该文件需要密码才能解压，请输入密码', '提示', {
-      showCancelButton: false,
-      inputPlaceholder: '请输入解压密码',
-    }).then(async ({ value }) => {
-      const result = await verifyZipPassword(file.raw as File, value);
-      if (result.success) {
-        emit('success', file.raw as File)
-      } else {
-        emit('error', result.error)
-        ElMessage.error(result.error)
-      }
-    }).catch(() => {
-      emit('error', '取消解压')
-    }).finally(() => {
-      progressShow.value = false
-      uploadDisabled.value = false
-    })
-  }
+  try {
+    if (await isZipPasswordProtected(zipFile)) {
+      const { value: password } = await ElMessageBox.prompt('该文件需要密码才能解压，请输入密码', '提示', {
+        showCancelButton: false,
+        inputPlaceholder: '请输入解压密码',
+      });
 
+      if (!password) {
+        throw new Error('未输入密码')
+      }
+      const isPasswordCorrect = await verifyZipPassword(zipFile, password)
+      if (isPasswordCorrect) {
+        emit('success', zipFile)
+        ElMessage.success('密码正确，文件解密成功')
+      } else {
+        throw new Error('密码错误，无法解压')
+      }
+    } else {
+      emit('success', zipFile)
+      ElMessage.success('无需密码，文件解密成功')
+    }
+  } catch (error) {
+    const errMessage = error instanceof Error ? error.message : '未知错误'
+    emit('error', errMessage)
+    ElMessage.error(errMessage)
+  } finally {
+    progressShow.value = false
+    uploadDisabled.value = false
+  }
 
 }
 </script>
