@@ -2,7 +2,7 @@
  * @Author: 白羽 1665169869@qq.com
  * @Date: 2025-10-30 11:58:51
  * @LastEditors: 白羽 1665169869@qq.com
- * @LastEditTime: 2025-10-30 21:25:57
+ * @LastEditTime: 2025-10-30 22:24:37
  * @FilePath: \vite-steganography-vue\src\utils\zip.ts
  * @Description: ZIP 读取工具函数（支持 AES 加密）
  */
@@ -170,6 +170,15 @@ export async function headerIsZip(file: File): Promise<boolean> {
   )
 }
 
+export interface ZipFileInfoEntry {
+  id: number
+  filename: string
+  size: number
+  lastModified: Date
+  isDirectory: boolean
+  raw: Entry
+}
+
 /**
  * 异步读取 ZIP 文件内容（支持 AES 加密）
  * @param file ZIP 文件
@@ -177,7 +186,8 @@ export async function headerIsZip(file: File): Promise<boolean> {
  * @returns ZipInfo 对象，包含文件名与条目列表
  */
 export async function readZipAsync(file: File, password?: string) {
-  const zipReader = new ZipReader(new BlobReader(file), { password })
+  const blob = new BlobReader(file)
+  const zipReader = new ZipReader(blob, { password })
 
   try {
     const entries = await zipReader.getEntries()
@@ -194,7 +204,7 @@ export async function readZipAsync(file: File, password?: string) {
         lastModified: entry.lastModDate,
         isDirectory: entry.directory,
         raw: entry,
-      }
+      } as ZipFileInfoEntry
     })
     return fileList
   } catch (err) {
