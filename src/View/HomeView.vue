@@ -22,9 +22,7 @@
         隐写者 - 在线解密
         <a href="https://github.com/1665169869/vite-steganography-vuer">Github</a>
       </div>
-      <div>
-        Copyright © 2025 BaiYu 隐写者使用 MIT许可协议 开放源代码
-      </div>
+      <div>Copyright © 2025 BaiYu 隐写者使用 MIT许可协议 开放源代码</div>
       <div>
         感谢
         <a href="https://github.com/cenglin123/SteganographierGUI/">SteganographierGUI</a>
@@ -35,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Delete } from "@element-plus/icons-vue";
-import FileSelector from "@/components/FileSelector.vue";
-import { ref } from "vue";
+import { Download, Delete } from '@element-plus/icons-vue'
+import FileSelector from '@/components/FileSelector.vue'
+import { ref } from 'vue'
 
-const btnDownloadDisabled = ref(true);
-const btnClearDisabled = ref(true);
+const btnDownloadDisabled = ref(true)
+const btnClearDisabled = ref(true)
 </script>
 
 <style scoped></style>

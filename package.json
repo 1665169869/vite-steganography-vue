@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
+    "@zip.js/zip.js": "^2.8.8",
     "element-plus": "^2.11.5",
     "jszip": "^3.10.1",
     "vue": "^3.5.22"
