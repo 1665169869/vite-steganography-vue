@@ -27,12 +27,24 @@ export function buildFileTree(files: { filename: string; size: number }[]): File
         current.push(node);
       }
 
-      if (!isFile) {
-        // 进入子目录继续处理
-        current = node.children!;
-      }
+      if (!isFile) current = node.children!;
     });
   }
 
+  // ✅ 递归排序：文件夹在前，文件在后
+  function sortTree(nodes: FileNode[]): void {
+    nodes.sort((a, b) => {
+      const aIsDir = !!a.children;
+      const bIsDir = !!b.children;
+      if (aIsDir !== bIsDir) return aIsDir ? -1 : 1; // 文件夹在前
+      return a.label.localeCompare(b.label, 'en');   // 同类型按字母顺序
+    });
+
+    for (const node of nodes) {
+      if (node.children) sortTree(node.children);
+    }
+  }
+
+  sortTree(root);
   return root;
 }

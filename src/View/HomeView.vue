@@ -78,13 +78,13 @@ const changeFile = async (file: File, password?: string) => {
 
   const list = await readZipAsync(zipFile.value, password);
   zipFileListTree.value = buildFileTree(list)
-  debugger
 }
 
 const clearFile = () => {
   zipFile.value = null
   btnDownloadDisabled.value = true
   btnClearDisabled.value = true
+  zipFileListTree.value = []
 }
 </script>
 
