@@ -20,6 +20,7 @@ declare module 'vue' {
     ElMain: typeof import('element-plus/es')['ElMain']
     ElProgress: typeof import('element-plus/es')['ElProgress']
     ElTip: typeof import('element-plus/es')['ElTip']
+    ElTree: typeof import('element-plus/es')['ElTree']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     FileSelector: typeof import('./src/components/FileSelector.vue')['default']
     FileSelects: typeof import('./src/components/FileSelects.vue')['default']

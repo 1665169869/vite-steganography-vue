@@ -1,20 +1,35 @@
+<!--
+ * @Author: 白羽 1665169869@qq.com
+ * @Date: 2025-10-30 19:22:42
+ * @LastEditors: 白羽 1665169869@qq.com
+ * @LastEditTime: 2025-10-30 22:10:31
+ * @FilePath: \vite-steganography-vue\src\View\HomeView.vue
+ * @Description:
+ * Copyright (c) 2025 by 白羽 1665169869@qq.com, All Rights Reserved.
+-->
 <template>
-  <el-container class="h-100vh items-center">
+  <el-container class="h-100vh items-center overflow-x-hidden">
     <el-main>
-      <div class="w-320px"><file-selector /></div>
-      <div class="w-240px flex flex-row flex-wrap items-center justify-between mx-auto mt-4">
-        <el-button type="primary" plain class="flex-1" :disabled="btnDownloadDisabled">
-          <el-icon class="el-icon--left">
-            <download />
-          </el-icon>
-          <span>下载</span>
-        </el-button>
-        <el-button type="danger" plain class="flex-1" :disabled="btnClearDisabled">
-          <el-icon class="el-icon--left">
-            <delete />
-          </el-icon>
-          <span>清空</span>
-        </el-button>
+      <div class="flex flex-col items-center">
+        <div class="min-w-320px max-w-400px">
+        <div><file-selector @success="changeFile" /></div>
+        <div class="flex flex-row flex-wrap items-center justify-between mx-auto mt-4">
+          <el-button type="primary" plain class="flex-1" :disabled="btnDownloadDisabled">
+            <el-icon class="el-icon--left">
+              <download />
+            </el-icon>
+            <span>下载</span>
+          </el-button>
+          <el-button type="danger" plain class="flex-1" :disabled="btnClearDisabled" @click="clearFile">
+            <el-icon class="el-icon--left">
+              <delete />
+            </el-icon>
+            <span>清空</span>
+          </el-button>
+        </div>
+      </div>
+
+      <el-tree style="max-width: 600px" class="w-100vw min-w-320px mt-8" :data="zipFileListTree" :props="defaultProps" />
       </div>
     </el-main>
     <el-footer class="flex flex-col items-center text-3">
@@ -33,12 +48,44 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Delete } from '@element-plus/icons-vue'
+import { Download, Delete, Folder } from '@element-plus/icons-vue'
 import FileSelector from '@/components/FileSelector.vue'
 import { ref } from 'vue'
+import { readZipAsync } from '@/utils/zip'
+import { buildFileTree, type FileNode } from '@/utils/utils'
+
 
 const btnDownloadDisabled = ref(true)
 const btnClearDisabled = ref(true)
+
+const zipFile = ref<File | null>(null)
+
+const zipFileListTree = ref<FileNode[]>([])
+
+const defaultProps = {
+  children: 'children',
+  label: 'label',
+  icon: 'icon'
+}
+
+
+
+const changeFile = async (file: File, password?: string) => {
+  console.log('file', file)
+  zipFile.value = file
+  btnDownloadDisabled.value = false
+  btnClearDisabled.value = false
+
+  const list = await readZipAsync(zipFile.value, password);
+  zipFileListTree.value = buildFileTree(list)
+  debugger
+}
+
+const clearFile = () => {
+  zipFile.value = null
+  btnDownloadDisabled.value = true
+  btnClearDisabled.value = true
+}
 </script>
 
 <style scoped></style>

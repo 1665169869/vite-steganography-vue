@@ -2,7 +2,7 @@
  * @Author: 白羽 1665169869@qq.com
  * @Date: 2025-10-30 11:58:51
  * @LastEditors: 白羽 1665169869@qq.com
- * @LastEditTime: 2025-10-30 21:04:32
+ * @LastEditTime: 2025-10-30 21:25:57
  * @FilePath: \vite-steganography-vue\src\utils\zip.ts
  * @Description: ZIP 读取工具函数（支持 AES 加密）
  */
@@ -10,15 +10,11 @@
 import { BlobReader, BlobWriter, ZipReader, type Entry, type FileEntry } from '@zip.js/zip.js'
 import { isNull, isUndefined } from 'lodash-es'
 
-export interface ZipInfo {
-  /** 原始 ZIP 文件对象 */
-  zipFile: File
-  /** ZIP 文件名 */
-  zipName: string
-  /** ZIP 中的文件条目 */
-  zipFileList: Entry[]
-}
-
+/**
+ * 在 ZIP 条目中查找最小的非目录文件
+ * @param entries
+ * @returns
+ */
 export function findSmallestZipFile(entries: Entry[]): FileEntry {
   if (entries.length === 0) {
     throw new Error('ZIP 文件中没有文件条目')
@@ -151,39 +147,6 @@ export async function verifyZipPassword(file: File, password?: string) {
     await zipReader.close().catch(() => {})
   }
 }
-
-/**
- * 异步读取 ZIP 文件内容（支持 AES 加密）
- * @param file ZIP 文件
- * @param password 可选的解压密码
- * @returns ZipInfo 对象，包含文件名与条目列表
- */
-export async function readZipAsync(file: File, password?: string): Promise<ZipInfo> {
-  const zipReader = new ZipReader(new BlobReader(file), { password })
-
-  try {
-    const entries = await zipReader.getEntries()
-
-    return {
-      zipName: file.name,
-      zipFile: file,
-      zipFileList: entries ?? [],
-    }
-  } catch (err) {
-    if (err instanceof Error) {
-      if (err.message?.includes('wrong password')) {
-        throw new Error('解压失败：密码错误或文件已损坏')
-      }
-      throw new Error(`解压 ZIP 文件失败：${err.message}`)
-    }
-
-    // fallback：非 Error 类型时（极少数情况）
-    throw new Error(`解压 ZIP 文件失败：${String(err)}`)
-  } finally {
-    await zipReader.close().catch(() => {})
-  }
-}
-
 /**
  * 判断文件是否为 ZIP 文件，直接读取文件头信息
  * @param file 待检测的文件
@@ -205,4 +168,46 @@ export async function headerIsZip(file: File): Promise<boolean> {
     header[2] === ZIP_FILE_HEADER[2] &&
     header[3] === ZIP_FILE_HEADER[3]
   )
+}
+
+/**
+ * 异步读取 ZIP 文件内容（支持 AES 加密）
+ * @param file ZIP 文件
+ * @param password 可选的解压密码
+ * @returns ZipInfo 对象，包含文件名与条目列表
+ */
+export async function readZipAsync(file: File, password?: string) {
+  const zipReader = new ZipReader(new BlobReader(file), { password })
+
+  try {
+    const entries = await zipReader.getEntries()
+
+    if (isUndefined(entries) || entries.length === 0) {
+      throw new Error('ZIP 文件中没有文件条目')
+    }
+
+    const fileList = entries.map((entry, index) => {
+      return {
+        id: index,
+        filename: entry.filename,
+        size: entry.uncompressedSize,
+        lastModified: entry.lastModDate,
+        isDirectory: entry.directory,
+        raw: entry,
+      }
+    })
+    return fileList
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.message?.includes('wrong password')) {
+        throw new Error('解压失败：密码错误或文件已损坏')
+      }
+      throw new Error(`解压 ZIP 文件失败：${err.message}`)
+    }
+
+    // fallback：非 Error 类型时（极少数情况）
+    throw new Error(`解压 ZIP 文件失败：${String(err)}`)
+  } finally {
+    await zipReader.close().catch(() => {})
+  }
 }

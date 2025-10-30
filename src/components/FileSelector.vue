@@ -2,7 +2,7 @@
  * @Author: 白羽 1665169869@qq.com
  * @Date: 2025-10-30 08:34:53
  * @LastEditors: 白羽 1665169869@qq.com
- * @LastEditTime: 2025-10-30 21:16:56
+ * @LastEditTime: 2025-10-30 21:56:05
  * @FilePath: \vite-steganography-vue\src\components\FileSelector.vue
  * @Description:
  * Copyright (c) 2025 by 白羽 1665169869@qq.com, All Rights Reserved.
@@ -44,7 +44,7 @@ const uploadDisabled = ref(false)
 
 // emits
 const emit = defineEmits<{
-  success: [zipFile: File]
+  success: [zipFile: File, password?: string]
   error: [errorString: string]
 }>()
 
@@ -86,7 +86,7 @@ const addFile = async (file: UploadFile) => {
       }
       const isPasswordCorrect = await verifyZipPassword(zipFile, password)
       if (isPasswordCorrect) {
-        emit('success', zipFile)
+        emit('success', zipFile, password)
         ElMessage.success('密码正确，文件解密成功')
       } else {
         throw new Error('密码错误，无法解压')
