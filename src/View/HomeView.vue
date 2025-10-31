@@ -2,7 +2,7 @@
  * @Author: 白羽 1665169869@qq.com
  * @Date: 2025-10-30 19:22:42
  * @LastEditors: 白羽 1665169869@qq.com
- * @LastEditTime: 2025-10-30 22:37:57
+ * @LastEditTime: 2025-11-01 05:01:13
  * @FilePath: \vite-steganography-vue\src\View\HomeView.vue
  * @Description:
  * Copyright (c) 2025 by 白羽 1665169869@qq.com, All Rights Reserved.
@@ -51,22 +51,24 @@
 <script setup lang="ts">
 import { Download, Delete } from '@element-plus/icons-vue'
 import FileSelector from '@/components/FileSelector.vue'
-import { computed, reactive, ref } from 'vue'
-import { readZipAsync, type ZipFileInfoEntry } from '@/utils/zip'
+import { computed, ref } from 'vue'
 import { buildFileTree } from '@/utils/utils'
+import { type ZipDataEntry } from '@/utils/zip/index'
 
 
 const btnDownloadDisabled = ref(true)
 const btnClearDisabled = ref(true)
 
-const zipInfo = reactive<{
-  file: File | null,
-  password?: string
-}>({
-  file: null
-})
+const zipInfo = ref<ZipDataEntry | null>(null);
 
-const zipFileList = ref<ZipFileInfoEntry[]>([])
+const zipFileList = computed(() => {
+  return zipInfo.value?.entries?.map((val) => {
+    return {
+      filename: val.filename,
+      size: val.compressedSize,
+    }
+  }) || []
+})
 const zipFileListTree = computed(() => {
   return buildFileTree(zipFileList.value)
 })
@@ -79,24 +81,16 @@ const defaultProps = {
 
 
 
-const changeFile = async (file: File, password?: string) => {
-  console.log('file', file)
+const changeFile = async (zipDataInfo: ZipDataEntry) => {
   btnDownloadDisabled.value = false
   btnClearDisabled.value = false
-  zipInfo.file = file
-  zipInfo.password = password
-
-  zipFileList.value = await readZipAsync(zipInfo.file, password);
-
-  debugger
+  zipInfo.value = zipDataInfo
 }
 
 const clearFile = () => {
-  zipInfo.file = null
-  zipInfo.password = undefined
   btnDownloadDisabled.value = true
   btnClearDisabled.value = true
-  zipFileList.value = []
+  zipInfo.value = null
 }
 </script>
 

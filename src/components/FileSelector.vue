@@ -2,7 +2,7 @@
  * @Author: 白羽 1665169869@qq.com
  * @Date: 2025-10-30 08:34:53
  * @LastEditors: 白羽 1665169869@qq.com
- * @LastEditTime: 2025-10-30 21:56:05
+ * @LastEditTime: 2025-11-01 05:03:33
  * @FilePath: \vite-steganography-vue\src\components\FileSelector.vue
  * @Description:
  * Copyright (c) 2025 by 白羽 1665169869@qq.com, All Rights Reserved.
@@ -30,79 +30,74 @@
 </template>
 
 <script lang="ts" setup>
-import { isProbablyZip, isZipPasswordProtected, verifyZipPassword } from '@/utils/zip'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox, type UploadFile } from 'element-plus'
 import { ref } from 'vue'
+import { unzipFile, type ZipDataEntry } from '@/utils/zip/index'
 // 仅支持的文件类型
 const accept = 'video/mp4, video/mkv, .mov, .mkv, .mp4'
 
 // refs
 const progressValue = ref(0)
 const progressShow = ref(false)
-const uploadDisabled = ref(false)
+
+// models
+const uploadDisabled = defineModel('uploadDisabled', {
+  type: Boolean,
+  default: false,
+})
 
 // emits
 const emit = defineEmits<{
-  success: [zipFile: File, password?: string]
+  success: [zipInfo: ZipDataEntry, password?: string]
   error: [errorString: string]
 }>()
 
 // methods
+const processFile = async (file: File, password?: string) => {
+  try {
+    const zipInfo = await unzipFile({
+      file,
+      password,
+      useWebWorkers: true,
+      onprogress: (loaded, total) => {
+        console.log('progress', loaded, total)
+        progressValue.value = Math.floor((loaded / total) * 100)
+      }
+    })
+
+    emit('success', zipInfo)
+    ElMessage.success(password ? '密码正确，文件解密成功' : '文件解密成功')
+  } catch (err) {
+    throw err
+  }
+}
+
 const addFile = async (file: UploadFile) => {
   progressShow.value = true
   progressValue.value = 0
   uploadDisabled.value = true
 
-  // if (!(await isZip(file.raw as File))) {
-  //   emit('error', '文件格式不正确')
-  //   ElMessage.error('文件格式不正确')
-  //   progressShow.value = false
-  //   uploadDisabled.value = false
-  //   return
-  // }
-
-  const zipFile: File = file.raw as File
-
-  const isZip = await isProbablyZip(zipFile)
-
-  if (!isZip) {
-    emit('error', '文件格式不正确')
-    ElMessage.error('文件格式不正确')
-    progressShow.value = false
-    uploadDisabled.value = false
-    return
-  }
-
   try {
-    if (await isZipPasswordProtected(zipFile)) {
-      const { value: password } = await ElMessageBox.prompt('该文件需要密码才能解压，请输入密码', '提示', {
-        showCancelButton: false,
-        inputPlaceholder: '请输入解压密码',
-      });
-
-      if (!password) {
-        throw new Error('未输入密码')
-      }
-      const isPasswordCorrect = await verifyZipPassword(zipFile, password)
-      if (isPasswordCorrect) {
-        emit('success', zipFile, password)
-        ElMessage.success('密码正确，文件解密成功')
+    await processFile(file.raw as File)
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.message === 'File contains encrypted entry') {
+        ElMessageBox.prompt('请输入密码', '提示', {
+          showCancelButton: false,
+          inputPlaceholder: '请输入解压密码',
+        }).then(async ({ value }) => {
+          await processFile(file.raw as File, value)
+        }).catch((err) => {
+          ElMessage.error(err.message)
+        })
       } else {
-        throw new Error('密码错误，无法解压')
+        ElMessage.error(err.message)
       }
-    } else {
-      emit('success', zipFile)
-      ElMessage.success('无需密码，文件解密成功')
     }
-  } catch (error) {
-    const errMessage = error instanceof Error ? error.message : '未知错误'
-    emit('error', errMessage)
-    ElMessage.error(errMessage)
   } finally {
     progressShow.value = false
     uploadDisabled.value = false
   }
-
 }
 </script>
